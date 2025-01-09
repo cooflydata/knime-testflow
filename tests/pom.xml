@@ -4,7 +4,7 @@
 
 	<parent>
 		<groupId>com.github.cooflydata.knime.testing</groupId>
-		<artifactId>com.github.cooflydata.knime.testing</artifactId>
+		<artifactId>testing</artifactId>
 		<version>1.0.5-SNAPSHOT</version>
 	</parent>
 

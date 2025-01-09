@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.cooflydata.knime.testing</groupId>
-	<artifactId>com.github.cooflydata.knime.testing</artifactId>
+	<artifactId>testing</artifactId>
 	<version>1.0.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<scm>
@@ -99,7 +99,7 @@
 					<target>
 						<artifact>
 							<groupId>com.github.cooflydata.knime.testing</groupId>
-							<artifactId>com.github.cooflydata.knime.testing.targetplatform</artifactId>
+							<artifactId>targetplatform</artifactId>
 							<version>${project.version}</version>
 							<classifier>${target.file}</classifier>
 						</artifact>

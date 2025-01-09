@@ -14,12 +14,12 @@ Contributors:
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>com.github.cooflydata.knime.testing.targetplatform</artifactId>
+	<artifactId>targetplatform</artifactId>
 	<packaging>pom</packaging>
 
 	<parent>
-		<artifactId>com.github.cooflydata.knime.testing</artifactId>
 		<groupId>com.github.cooflydata.knime.testing</groupId>
+		<artifactId>testing</artifactId>
 		<version>1.0.5-SNAPSHOT</version>
 	</parent>
 
