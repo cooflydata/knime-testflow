@@ -66,9 +66,9 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
-					<resolver>p2</resolver>
+<!--					<resolver>p2</resolver>-->
 					<pomDependencies>consider</pomDependencies>
-					<ignoreTychoRepositories>true</ignoreTychoRepositories>
+<!--					<ignoreTychoRepositories>true</ignoreTychoRepositories>-->
 					<environments>
 						<environment>
 							<os>linux</os>
@@ -124,11 +124,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-pack200a-plugin</artifactId>
-				<version>${tycho.extras.version}</version>
-			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -136,6 +131,18 @@
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-packaging-plugin</artifactId>
 					<version>${tycho.version}</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.eclipse.tycho.extras</groupId>
+							<artifactId>tycho-sourceref-jgit</artifactId>
+							<version>${tycho.extras.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.eclipse.tycho</groupId>
+							<artifactId>tycho-buildtimestamp-jgit</artifactId>
+							<version>${tycho.version}</version>
+						</dependency>
+					</dependencies>
 <!--					<dependencies>-->
 <!--						<dependency>-->
 <!--							<groupId>org.eclipse.tycho.extras</groupId>-->
@@ -153,7 +160,7 @@
 							<generate>true</generate>
 						</sourceReferences>
 						<format>'v'yyyyMMddHHmm</format>
-<!--						<timestampProvider>jgit</timestampProvider>-->
+						<timestampProvider>jgit</timestampProvider>
 					</configuration>
 				</plugin>
 			</plugins>

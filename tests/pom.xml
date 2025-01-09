@@ -8,7 +8,7 @@
 		<version>1.0.5-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>com.github.cooflydata.testing.tests</artifactId>
+	<artifactId>tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
 	<build>
@@ -177,3 +177,5 @@
    		</profile>
 	</profiles>
 </project>
+
+
