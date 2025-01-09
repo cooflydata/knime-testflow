@@ -26,7 +26,7 @@
 	</prerequisites>
 
 	<properties>
-		<tycho.version>2.7.5</tycho.version>
+		<tycho.version>3.0.5</tycho.version>
 		<tycho.extras.version>${tycho.version}</tycho.extras.version>
 		<tycho.test.jvmArgs>-Xmx512m</tycho.test.jvmArgs>
 		<jacoco.version>0.8.10</jacoco.version>
