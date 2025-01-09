@@ -43,81 +43,49 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   18.05.2012 (meinl): created
+ *   19.08.2013 (thor): created
  */
-package nl.esciencecenter.e3dchem.knime.testing.core.ng;
+package com.github.cooflydata.knime.testing.core.ng;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
+import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.junit.rules.ErrorCollector;
+import org.knime.core.node.CanceledExecutionException;
+import org.knime.core.node.ExecutionMonitor;
+import org.knime.core.util.LockFailedException;
 
 /**
- * Abstract base class for workflow tests.
+ * Saves the workflow after execution and reports exceptions as failures.
  *
- * @author Thorsten Meinl, University of Konstanz
- * @since 2.9
+ * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
  */
-public abstract class WorkflowTest {
-    /**
-     * The workflow's name.
-     */
-    protected final String m_workflowName;
+public class WorkflowSaveTest extends WorkflowTest {
+    private final File m_saveLocation;
 
-    /**
-     * The progress monitor, never <code>null</code>.
-     */
-    protected final IProgressMonitor m_progressMonitor;
+    public WorkflowSaveTest(final String workflowName, final IProgressMonitor monitor, final File saveLocation,
+                     final WorkflowTestContext context) {
+        super(workflowName, monitor, context);
+        m_saveLocation = saveLocation;
+    }
 
-    /**
-     * The test context, never <code>null</code>.
-     */
-    protected final WorkflowTestContext m_context;
-
-    /**
-     * Creates a new workflow test for the given workflow.
-     *
-     * @param workflowName the workflow's name
-     * @param monitor progress monitor, may be <code>null</code>
-     * @param context the test context, must not be <code>null</code>
-     */
-    protected WorkflowTest(final String workflowName, final IProgressMonitor monitor, final WorkflowTestContext context) {
-        m_workflowName = workflowName;
-        if (monitor == null) {
-            m_progressMonitor = new NullProgressMonitor();
-        } else {
-            m_progressMonitor = monitor;
+    public void run(final ErrorCollector collector) {
+        if (m_saveLocation != null) {
+            try {
+                saveWorkflow();
+            } catch (Throwable t) {
+                collector.addError(t);
+            }
         }
-        if (context == null) {
-            throw new IllegalArgumentException("Test context must not be null");
+    }
+
+    private void saveWorkflow() throws IOException, CanceledExecutionException, LockFailedException {
+        File saveLocation = new File(m_saveLocation, m_workflowName);
+        if (!saveLocation.isDirectory() && !saveLocation.mkdirs()) {
+            throw new IOException("Could not create destination directory for workflow: "
+                    + saveLocation.getAbsolutePath());
         }
-        m_context = context;
-    }
-
-    /**
-     * Returns the name of the workflow that is being tested (including the full path).
-     *
-     * @return the workflow's name
-     */
-    public final String getWorkflowName() {
-        return m_workflowName;
-    }
-
-
-
-
-    /**
-     * This methods is called when the whole test suite starts but before the first test is run. Subclassed may override
-     * this method in order to initialize things.
-     */
-    public void aboutToStart() {
-        // do nothing by default
-    }
-
-    protected static MemoryUsage getHeapUsage() {
-        System.gc();
-
-        return ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+        m_context.getWorkflowManager().save(saveLocation, new ExecutionMonitor(), true);
     }
 }

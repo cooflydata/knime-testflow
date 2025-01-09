@@ -43,77 +43,68 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   04.02.2014 (thor): created
+ *   19.08.2013 (thor): created
  */
-package nl.esciencecenter.e3dchem.knime.testing.core.ng;
+package com.github.cooflydata.knime.testing.core.ng;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.junit.rules.ErrorCollector;
-import org.knime.core.data.RowKey;
-import org.knime.core.data.container.CloseableRowIterator;
-import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.property.hilite.HiLiteHandler;
+import org.knime.core.data.container.BufferTracker;
+import org.knime.core.data.util.memory.MemoryAlert;
+import org.knime.core.data.util.memory.MemoryAlertListener;
+import org.knime.core.data.util.memory.MemoryAlertSystem;
 import org.knime.core.node.workflow.NodeContainer;
-import org.knime.core.node.workflow.SingleNodeContainer;
 import org.knime.core.node.workflow.WorkflowManager;
+import org.knime.core.util.Pair;
 
 /**
- * Testcase that hilites rows in all output tables from every node. Errors will very likely not occur in this test but
- * be reported in the log file or result in exceptions in views.
+ * Testcase that closes the workflow and does some additional checks, e.g. if all resources held by the workflow are
+ * cleaned up.
  *
  * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
  */
-public class WorkflowHiliteTest extends WorkflowTest {
-    public WorkflowHiliteTest(final String workflowName, final IProgressMonitor monitor, final WorkflowTestContext context) {
-        super(workflowName, monitor, context);
-    }
+public class WorkflowCloseTest {
 
-    public void run(final ErrorCollector collector) {
+    public void run(final ErrorCollector collector, WorkflowTestContext m_context) {
         try {
-            hiliteRows(collector, m_context.getWorkflowManager(), m_context.getTestflowConfiguration());
+            m_context.getWorkflowManager().shutdown();
+            m_context.getWorkflowManager().getParent().removeNode(m_context.getWorkflowManager().getID());
+
+            List<NodeContainer> openWorkflows = new ArrayList<NodeContainer>(WorkflowManager.ROOT.getNodeContainers());
+            openWorkflows.removeAll(m_context.getAlreadyOpenWorkflows());
+            if (openWorkflows.size() > 0) {
+            	collector.addError(new Throwable(openWorkflows.size()
+                        + " dangling workflows detected: " + openWorkflows));
+            }
+
+            Collection<Pair<NodeContainer, StackTraceElement[]>> openBuffers =
+                BufferTracker.getInstance().getOpenBuffers();
+            if (!openBuffers.isEmpty()) {
+            	collector.addError(new Throwable(openBuffers.size() + " open buffers detected: "
+                    + openBuffers.stream().map(p -> p.getFirst().getNameWithID()).collect(Collectors.joining(", "))));
+            }
+            BufferTracker.getInstance().clear();
         } catch (Throwable t) {
-            collector.addError(t);
+        	collector.addError(t);
         }
     }
 
-    private void hiliteRows(final ErrorCollector collector, final WorkflowManager manager,
-                            final TestflowConfiguration flowConfiguration) {
-        for (NodeContainer cont : manager.getNodeContainers()) {
-            if (cont instanceof WorkflowManager) {
-                hiliteRows(collector, (WorkflowManager)cont, flowConfiguration);
-            } else if (cont instanceof SingleNodeContainer) {
-                hiliteRows(collector, (SingleNodeContainer)cont, flowConfiguration);
-
+    private void sendMemoryAlert() throws InterruptedException {
+        Semaphore sem = new Semaphore(1);
+        sem.acquire();
+        MemoryAlertSystem.getInstance().addListener(new MemoryAlertListener() {
+            @Override
+            protected boolean memoryAlert(final MemoryAlert alert) {
+                sem.release();
+                return true;
             }
-        }
-    }
-
-    private void hiliteRows(final ErrorCollector collector, final SingleNodeContainer node,
-                            final TestflowConfiguration flowConfiguration) {
-        for (int i = 0; i < node.getNrOutPorts(); i++) {
-            if (node.getOutputObject(i) instanceof BufferedDataTable) {
-                int max = flowConfiguration.getMaxHiliteRows();
-
-                List<RowKey> keys = new ArrayList<RowKey>();
-                CloseableRowIterator it = ((BufferedDataTable)node.getOutputObject(i)).iterator();
-                while (it.hasNext() && max-- > 0) {
-                    keys.add(it.next().getKey());
-                }
-                it.close();
-
-                HiLiteHandler handler = node.getOutputHiLiteHandler(i);
-                // hilite all
-                handler.fireHiLiteEvent(new HashSet<RowKey>(keys));
-                // unhilite sonme
-                handler.fireUnHiLiteEvent(new HashSet<RowKey>(keys.subList((int) (0.1 * keys.size()),
-                                                                         (int) Math.ceil(0.6 * keys.size()))));
-                // unhilite all
-                handler.fireClearHiLiteEvent();
-            }
-        }
+        });
+        MemoryAlertSystem.getInstance().sendMemoryAlert();
+        sem.acquire();
     }
 }

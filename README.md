@@ -1,6 +1,6 @@
 Test Knime workflows from a Junit test.
 
-[![Java CI with Maven](https://github.com/3D-e-Chem/knime-testflow/actions/workflows/ci.yml/badge.svg)](https://github.com/3D-e-Chem/knime-testflow/actions/workflows/ci.yml)
+[![Java CI with Maven](https://github.com/cooflydata/knime-testflow/actions/workflows/ci.yml/badge.svg)](https://github.com/cooflydata/knime-testflow/actions/workflows/ci.yml)
 ![Coverage](.github/badges/jacoco.svg)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.55805.svg)](http://dx.doi.org/10.5281/zenodo.55805)
 
@@ -18,14 +18,14 @@ Using the plugin requires several steps.
 
 ## 1. Add repository
 
-This plugin is available in the `https://3d-e-chem.github.io/updates` update site.
+This plugin is available in the `https://cooflydata.github.io/updates` update site.
 
 To make use of in a Tycho based project add to the `<repositories>` tag of the `pom.xml` file the following:
 ```
 <repository>
-    <id>3d-e-chem</id>
+    <id>cooflydata</id>
     <layout>p2</layout>
-    <url>https://3d-e-chem.github.io/updates</url>
+    <url>https://cooflydata.github.io/updates</url>
 </repository>
 ```
 
@@ -33,7 +33,7 @@ To make use of in a Tycho based project add to the `<repositories>` tag of the `
 
 In the `Require-Bundle` attribute of the `META-INF/MANIFEST.MF` of the tests module add
 ```
-nl.esciencecenter.e3dchem.knime.testing.plugin;bundle-version="[1.0.0,2.0.0)",
+com.github.cooflydata.knime.testing.plugin;bundle-version="[1.0.0,2.0.0)",
 org.knime.testing;bundle-version="[4.0.0,6.0.0)",
 ```
 
@@ -119,7 +119,7 @@ Steps to get development environment setup based on https://github.com/knime/kni
 2. Install Eclipse for [RCP and RAP developers](https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-rcp-and-rap-developers)
 3. Configure Java 17 inside Eclipse Window > Preferences > Java > Installed JREs
 4. Import this repo as an Existing Maven project
-5. Activate target platform by going to Window > Preferences > Plug-in Development > Target Platform and check the `KNIME Analytics Platform (5.1) - nl.esciencecenter.e3dchem.knime.testing.targetplatform/KNIME-AP-5.1.target` target definition.
+5. Activate target platform by going to Window > Preferences > Plug-in Development > Target Platform and check the `KNIME Analytics Platform (5.1) - com.github.cooflydata.knime.testing.targetplatform/KNIME-AP-5.1.target` target definition.
 
 During import the Tycho Eclipse providers must be installed.
 

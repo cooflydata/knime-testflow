@@ -1,4 +1,4 @@
-package nl.esciencecenter.e3dchem.knime.testing;
+package com.github.cooflydata.knime.testing;
 
 import static org.junit.Assert.assertEquals;
 

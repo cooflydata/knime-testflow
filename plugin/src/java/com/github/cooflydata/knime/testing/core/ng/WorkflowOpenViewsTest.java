@@ -45,7 +45,7 @@
  * History
  *   19.08.2013 (thor): created
  */
-package nl.esciencecenter.e3dchem.knime.testing.core.ng;
+package com.github.cooflydata.knime.testing.core.ng;
 
 import java.util.ArrayList;
 import java.util.List;

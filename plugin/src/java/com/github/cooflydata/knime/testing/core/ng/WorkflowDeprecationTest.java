@@ -45,58 +45,43 @@
  * History
  *   19.08.2013 (thor): created
  */
-package nl.esciencecenter.e3dchem.knime.testing.core.ng;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.SwingUtilities;
+package com.github.cooflydata.knime.testing.core.ng;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.junit.rules.ErrorCollector;
-import org.knime.core.node.AbstractNodeView;
-import org.knime.core.node.Node;
-import org.knime.core.node.NodeModel;
+import org.knime.core.node.workflow.NodeContainer;
 import org.knime.core.node.workflow.SingleNodeContainer;
-
+import org.knime.core.node.workflow.WorkflowManager;
 
 /**
- * Testcase that closes all open views of the workflow and checks whether any exceptions are thrown meanwhile.
+ * Checks whether the workflow contains deprecated nodes and reports them as failures.
  *
  * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
  */
-public class WorkflowCloseViewsTest extends WorkflowTest {
-    public WorkflowCloseViewsTest(final String workflowName, final IProgressMonitor monitor, final WorkflowTestContext context) {
+public class WorkflowDeprecationTest extends WorkflowTest {
+    public WorkflowDeprecationTest(final String workflowName, final IProgressMonitor monitor, final WorkflowTestContext context) {
         super(workflowName, monitor, context);
     }
 
     public void run(final ErrorCollector collector) {
+
         try {
-            closeViews(collector);
+            checkForDeprecatedNodes(collector, m_context.getWorkflowManager());
         } catch (Throwable t) {
         	collector.addError(t);
         }
     }
 
-    private void closeViews(final ErrorCollector collector) throws InterruptedException {
-        Semaphore done = new Semaphore(1);
-        done.acquire();
-        SwingUtilities.invokeLater(() -> done.release());
-        done.tryAcquire(2, TimeUnit.SECONDS);
-
-        for (Map.Entry<SingleNodeContainer, List<AbstractNodeView<? extends NodeModel>>> e : m_context.getNodeViews()
-                .entrySet()) {
-            for (AbstractNodeView<? extends NodeModel> view : e.getValue()) {
-                try {
-                    Node.invokeCloseView(view);
-                } catch (Exception ex) {
-                    String msg =
-                            "View '" + view + "' of node '" + e.getKey().getNameWithID() + "' has thrown a "
-                                    + ex.getClass().getSimpleName() + " during close: " + ex.getMessage();
-                    collector.addError(new Throwable(msg, ex));
+    private void checkForDeprecatedNodes(final ErrorCollector collector, final WorkflowManager wfm) {
+        for (NodeContainer node : wfm.getNodeContainers()) {
+            if (node instanceof SingleNodeContainer) {
+                if ("true".equals(((SingleNodeContainer)node).getXMLDescription().getAttribute("deprecated"))) {
+                	 collector.addError(new Throwable("Node '" + node.getName() + "' is deprecated."));
                 }
+            } else if (node instanceof WorkflowManager) {
+                checkForDeprecatedNodes(collector, (WorkflowManager)node);
+            } else {
+                throw new IllegalStateException("Unknown node container type: " + node.getClass().getName());
             }
         }
     }

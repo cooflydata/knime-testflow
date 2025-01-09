@@ -1,4 +1,4 @@
-package nl.esciencecenter.e3dchem.knime.testing;
+package com.github.cooflydata.knime.testing;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,20 +14,20 @@ import org.knime.workbench.core.util.ImageRepository;
 import org.knime.workbench.core.util.ImageRepository.SharedImages;
 import org.knime.workbench.repository.RepositoryManager;
 
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowCloseTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowCloseViewsTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowDeprecationTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowDialogsTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowExecuteTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowHiliteTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowLoadTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowLogMessagesTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowMemLeakTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowNodeMessagesTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowOpenViewsTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowSaveTest;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowTestContext;
-import nl.esciencecenter.e3dchem.knime.testing.core.ng.WorkflowUncaughtExceptionsTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowCloseTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowCloseViewsTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowDeprecationTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowDialogsTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowExecuteTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowHiliteTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowLoadTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowLogMessagesTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowMemLeakTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowNodeMessagesTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowOpenViewsTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowSaveTest;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowTestContext;
+import com.github.cooflydata.knime.testing.core.ng.WorkflowUncaughtExceptionsTest;
 
 /**
  * Runner which will execute a single workflow and perform test checks.

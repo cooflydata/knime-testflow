@@ -43,46 +43,81 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   19.08.2013 (thor): created
+ *   18.05.2012 (meinl): created
  */
-package nl.esciencecenter.e3dchem.knime.testing.core.ng;
+package com.github.cooflydata.knime.testing.core.ng;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.junit.rules.ErrorCollector;
-import org.knime.core.node.workflow.NodeContainer;
-import org.knime.core.node.workflow.SingleNodeContainer;
-import org.knime.core.node.workflow.WorkflowManager;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 /**
- * Checks whether the workflow contains deprecated nodes and reports them as failures.
+ * Abstract base class for workflow tests.
  *
- * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
+ * @author Thorsten Meinl, University of Konstanz
+ * @since 2.9
  */
-public class WorkflowDeprecationTest extends WorkflowTest {
-    public WorkflowDeprecationTest(final String workflowName, final IProgressMonitor monitor, final WorkflowTestContext context) {
-        super(workflowName, monitor, context);
+public abstract class WorkflowTest {
+    /**
+     * The workflow's name.
+     */
+    protected final String m_workflowName;
+
+    /**
+     * The progress monitor, never <code>null</code>.
+     */
+    protected final IProgressMonitor m_progressMonitor;
+
+    /**
+     * The test context, never <code>null</code>.
+     */
+    protected final WorkflowTestContext m_context;
+
+    /**
+     * Creates a new workflow test for the given workflow.
+     *
+     * @param workflowName the workflow's name
+     * @param monitor progress monitor, may be <code>null</code>
+     * @param context the test context, must not be <code>null</code>
+     */
+    protected WorkflowTest(final String workflowName, final IProgressMonitor monitor, final WorkflowTestContext context) {
+        m_workflowName = workflowName;
+        if (monitor == null) {
+            m_progressMonitor = new NullProgressMonitor();
+        } else {
+            m_progressMonitor = monitor;
+        }
+        if (context == null) {
+            throw new IllegalArgumentException("Test context must not be null");
+        }
+        m_context = context;
     }
 
-    public void run(final ErrorCollector collector) {
-
-        try {
-            checkForDeprecatedNodes(collector, m_context.getWorkflowManager());
-        } catch (Throwable t) {
-        	collector.addError(t);
-        }
+    /**
+     * Returns the name of the workflow that is being tested (including the full path).
+     *
+     * @return the workflow's name
+     */
+    public final String getWorkflowName() {
+        return m_workflowName;
     }
 
-    private void checkForDeprecatedNodes(final ErrorCollector collector, final WorkflowManager wfm) {
-        for (NodeContainer node : wfm.getNodeContainers()) {
-            if (node instanceof SingleNodeContainer) {
-                if ("true".equals(((SingleNodeContainer)node).getXMLDescription().getAttribute("deprecated"))) {
-                	 collector.addError(new Throwable("Node '" + node.getName() + "' is deprecated."));
-                }
-            } else if (node instanceof WorkflowManager) {
-                checkForDeprecatedNodes(collector, (WorkflowManager)node);
-            } else {
-                throw new IllegalStateException("Unknown node container type: " + node.getClass().getName());
-            }
-        }
+
+
+
+    /**
+     * This methods is called when the whole test suite starts but before the first test is run. Subclassed may override
+     * this method in order to initialize things.
+     */
+    public void aboutToStart() {
+        // do nothing by default
+    }
+
+    protected static MemoryUsage getHeapUsage() {
+        System.gc();
+
+        return ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
     }
 }

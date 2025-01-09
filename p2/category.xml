@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <bundle id="nl.esciencecenter.e3dchem.knime.testing.plugin" version="1.0.5.qualifier">
-      <category name="nl.esciencecenter.3D-e-Chem"/>
+   <bundle id="com.github.cooflydata.knime.testing.plugin" version="1.0.5.qualifier">
+      <category name="com.github.cooflydata.Coofly"/>
    </bundle>
-   <category-def name="nl.esciencecenter.3D-e-Chem" label="KNIME 3D-e-Chem Contributions">
+   <category-def name="com.github.cooflydata.Coofly" label="KNIME Coofly Contributions">
       <description>
-         3D-e-Chem: Collection KNIME nodes &amp; Extensions for the NLeSC 3d-e-Chem project
+         Coofly: Collection KNIME nodes &amp; Extensions for the Coofly project
       </description>
    </category-def>
 </site>

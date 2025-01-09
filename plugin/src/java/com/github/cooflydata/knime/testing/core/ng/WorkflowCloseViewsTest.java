@@ -45,47 +45,59 @@
  * History
  *   19.08.2013 (thor): created
  */
-package nl.esciencecenter.e3dchem.knime.testing.core.ng;
+package com.github.cooflydata.knime.testing.core.ng;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.SwingUtilities;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.junit.rules.ErrorCollector;
-import org.knime.core.node.CanceledExecutionException;
-import org.knime.core.node.ExecutionMonitor;
-import org.knime.core.util.LockFailedException;
+import org.knime.core.node.AbstractNodeView;
+import org.knime.core.node.Node;
+import org.knime.core.node.NodeModel;
+import org.knime.core.node.workflow.SingleNodeContainer;
+
 
 /**
- * Saves the workflow after execution and reports exceptions as failures.
+ * Testcase that closes all open views of the workflow and checks whether any exceptions are thrown meanwhile.
  *
  * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
  */
-public class WorkflowSaveTest extends WorkflowTest {
-    private final File m_saveLocation;
-
-    public WorkflowSaveTest(final String workflowName, final IProgressMonitor monitor, final File saveLocation,
-                     final WorkflowTestContext context) {
+public class WorkflowCloseViewsTest extends WorkflowTest {
+    public WorkflowCloseViewsTest(final String workflowName, final IProgressMonitor monitor, final WorkflowTestContext context) {
         super(workflowName, monitor, context);
-        m_saveLocation = saveLocation;
     }
 
     public void run(final ErrorCollector collector) {
-        if (m_saveLocation != null) {
-            try {
-                saveWorkflow();
-            } catch (Throwable t) {
-                collector.addError(t);
-            }
+        try {
+            closeViews(collector);
+        } catch (Throwable t) {
+        	collector.addError(t);
         }
     }
 
-    private void saveWorkflow() throws IOException, CanceledExecutionException, LockFailedException {
-        File saveLocation = new File(m_saveLocation, m_workflowName);
-        if (!saveLocation.isDirectory() && !saveLocation.mkdirs()) {
-            throw new IOException("Could not create destination directory for workflow: "
-                    + saveLocation.getAbsolutePath());
+    private void closeViews(final ErrorCollector collector) throws InterruptedException {
+        Semaphore done = new Semaphore(1);
+        done.acquire();
+        SwingUtilities.invokeLater(() -> done.release());
+        done.tryAcquire(2, TimeUnit.SECONDS);
+
+        for (Map.Entry<SingleNodeContainer, List<AbstractNodeView<? extends NodeModel>>> e : m_context.getNodeViews()
+                .entrySet()) {
+            for (AbstractNodeView<? extends NodeModel> view : e.getValue()) {
+                try {
+                    Node.invokeCloseView(view);
+                } catch (Exception ex) {
+                    String msg =
+                            "View '" + view + "' of node '" + e.getKey().getNameWithID() + "' has thrown a "
+                                    + ex.getClass().getSimpleName() + " during close: " + ex.getMessage();
+                    collector.addError(new Throwable(msg, ex));
+                }
+            }
         }
-        m_context.getWorkflowManager().save(saveLocation, new ExecutionMonitor(), true);
     }
 }

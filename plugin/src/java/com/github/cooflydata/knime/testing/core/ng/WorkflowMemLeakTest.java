@@ -43,77 +43,45 @@
  * ---------------------------------------------------------------------
  *
  * History
- *   19.08.2013 (thor): created
+ *   18.09.2013 (thor): created
  */
-package nl.esciencecenter.e3dchem.knime.testing.core.ng;
+package com.github.cooflydata.knime.testing.core.ng;
 
-import javax.swing.SwingUtilities;
+import java.lang.management.MemoryUsage;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.junit.rules.ErrorCollector;
-import org.knime.core.node.NodeLogger;
-import org.knime.core.node.workflow.NodeContext;
-import org.knime.core.util.Pair;
+import org.knime.testing.core.TestrunConfiguration;
 
 /**
- * Testcase that reports any uncaught exceptions. An exception handler is installed during creation of the test. It
- * records all uncaught exception and reports them as errors when the test is run. The exception handler is removed
- * after the test has run.
+ * Testcase that checks the used heap before and after a testflows is run. If the difference is greater than the
+ * threshold (see {@link TestrunConfiguration#getAllowedMemoryIncrease()} the test fails.
  *
  * @author Thorsten Meinl, KNIME.com, Zurich, Switzerland
  */
-public class WorkflowUncaughtExceptionsTest extends WorkflowTest {
-    private static final NodeLogger LOGGER = NodeLogger.getLogger(WorkflowUncaughtExceptionsTest.class);
+public class WorkflowMemLeakTest extends WorkflowTest {
+    private final TestrunConfiguration m_runConfiguration;
 
-    public WorkflowUncaughtExceptionsTest(final String workflowName, final IProgressMonitor monitor,
-                                   final WorkflowTestContext context) {
+    private final MemoryUsage m_initalUsage;
+
+    public WorkflowMemLeakTest(final String workflowName, final IProgressMonitor monitor,
+                        final TestrunConfiguration runConfiguration, final WorkflowTestContext context) {
         super(workflowName, monitor, context);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void aboutToStart() {
-        super.aboutToStart();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(final Thread t, final Throwable e) {
-                synchronized (m_context.getUncaughtExceptions()) {
-                    m_context.getUncaughtExceptions().add(new Pair<Thread, Throwable>(t, e));
-
-                    String msg = "Uncaught " + e.getClass().getName() + " in thread " + t.getName();
-                    if (NodeContext.getContext() != null) {
-                        msg += " with node context '" + NodeContext.getContext() + "'";
-                    }
-                    msg += ": " + e.getMessage();
-                    LOGGER.debug(msg, e);
-                }
-            }
-        });
+        m_runConfiguration = runConfiguration;
+        m_initalUsage = getHeapUsage();
     }
 
     public void run(final ErrorCollector collector) {
         try {
-            assert !SwingUtilities.isEventDispatchThread() : "This part must not be executed in the AWT thread";
-            SwingUtilities.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    // do nothing, just wait for all previous events to be processed (e.g. close dialog and views)
-                }
-            });
-            synchronized (m_context.getUncaughtExceptions()) {
-                for (Pair<Thread, Throwable> p : m_context.getUncaughtExceptions()) {
-                	Throwable error = new Throwable("Thread " + p.getFirst().getName() + " has thrown an uncaught "
-                                    + p.getSecond().getClass().getSimpleName() + ": " + p.getSecond().getMessage(), p.getSecond());
-                    collector.addError(error);
-                }
+            MemoryUsage currentUsage = getHeapUsage();
+            long diff = currentUsage.getUsed() - m_initalUsage.getUsed();
+            if (diff > m_runConfiguration.getAllowedMemoryIncrease()) {
+            	collector.addError(new Throwable("Heap usage increased by " + diff
+                        + " bytes which is more than the allowed " + m_runConfiguration.getAllowedMemoryIncrease()
+                        + "bytes (before test: " + m_initalUsage.getUsed() + ", after test: " + currentUsage.getUsed()));
             }
         } catch (Throwable t) {
-        	collector.addError(t);
-        } finally {
-            Thread.setDefaultUncaughtExceptionHandler(null);
+            collector.addError(t);
         }
     }
-
 }
