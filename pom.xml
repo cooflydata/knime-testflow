@@ -26,7 +26,7 @@
 	</prerequisites>
 
 	<properties>
-		<tycho.version>3.0.5</tycho.version>
+		<tycho.version>4.0.10</tycho.version>
 		<tycho.extras.version>${tycho.version}</tycho.extras.version>
 		<tycho.test.jvmArgs>-Xmx512m</tycho.test.jvmArgs>
 		<jacoco.version>0.8.10</jacoco.version>
@@ -136,24 +136,24 @@
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-packaging-plugin</artifactId>
 					<version>${tycho.version}</version>
-					<dependencies>
-						<dependency>
-							<groupId>org.eclipse.tycho.extras</groupId>
-							<artifactId>tycho-buildtimestamp-jgit</artifactId>
-							<version>${tycho.extras.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.eclipse.tycho.extras</groupId>
-							<artifactId>tycho-sourceref-jgit</artifactId>
-							<version>${tycho.extras.version}</version>
-						</dependency>
-					</dependencies>
+<!--					<dependencies>-->
+<!--						<dependency>-->
+<!--							<groupId>org.eclipse.tycho.extras</groupId>-->
+<!--							<artifactId>tycho-buildtimestamp-jgit</artifactId>-->
+<!--							<version>${tycho.extras.version}</version>-->
+<!--						</dependency>-->
+<!--						<dependency>-->
+<!--							<groupId>org.eclipse.tycho.extras</groupId>-->
+<!--							<artifactId>tycho-sourceref-jgit</artifactId>-->
+<!--							<version>${tycho.extras.version}</version>-->
+<!--						</dependency>-->
+<!--					</dependencies>-->
 					<configuration>
 						<sourceReferences>
 							<generate>true</generate>
 						</sourceReferences>
 						<format>'v'yyyyMMddHHmm</format>
-						<timestampProvider>jgit</timestampProvider>
+<!--						<timestampProvider>jgit</timestampProvider>-->
 					</configuration>
 				</plugin>
 			</plugins>
@@ -181,15 +181,15 @@
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.eclipse.tycho.extras</groupId>
-						<artifactId>tycho-source-feature-plugin</artifactId>
-						<version>${tycho.extras.version}</version>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-source-plugin</artifactId>
+						<version>${tycho.version}</version>
 						<executions>
 							<execution>
-								<id>source-feature</id>
+								<id>feature-source</id>
 								<phase>package</phase>
 								<goals>
-									<goal>source-feature</goal>
+									<goal>feature-source</goal>
 								</goals>
 							</execution>
 						</executions>
