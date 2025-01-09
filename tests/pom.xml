@@ -8,7 +8,7 @@
 		<version>1.0.5-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>tests</artifactId>
+	<artifactId>com.github.cooflydata.knime.testing.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
 	<build>
