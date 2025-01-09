@@ -9,7 +9,7 @@
     <artifactId>p2</artifactId>
     <packaging>eclipse-repository</packaging>
     <properties>
-        <my.target.directory>${project.build.directory.replace('\\', '/')}</my.target.directory>
+        <my.target.directory>${project.build.directory.replace('\', '/')}</my.target.directory>
     </properties>
     <build>
         <plugins>
