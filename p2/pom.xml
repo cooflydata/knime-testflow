@@ -27,7 +27,7 @@
                     <configuration>
                         <source>
                             <repository>
-                                <url>${my.target.directory}/repository</url>
+                                <url>D:/myWork/knime-testflow/p2/target/repository</url>
                             </repository>
                         </source>
                         <destination>${target.update.site}</destination>
