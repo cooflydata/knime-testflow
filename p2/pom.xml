@@ -24,7 +24,7 @@
                     <configuration>
                         <source>
                             <repository>
-                                <url>file:\\\${project.build.directory}/repository</url>
+                                <url>${project.build.directory}\repository</url>
                             </repository>
                         </source>
                         <destination>${target.update.site}</destination>
